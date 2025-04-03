@@ -13,9 +13,11 @@ services:
     image: eclipse-mosquitto:2
     container_name: mosquitto
     ports:
-      - "1883:1883"
+      - "1883:1883" 
+      - "9001:9001"
     volumes:
       - ./mosquitto:/mosquitto
+    user: "${UID}:${GID}"
 
   subscriber:
     build: ./subscriber
@@ -25,3 +27,15 @@ services:
       - mosquitto
     volumes:
       - ./subscriber:/app
+    command: python3 main.py
+  
+  websocket:
+    build: ./websocket-server
+    container_name: websocket-server
+    depends_on:
+      - mongo
+    volumes:
+      - ./websocket-server:/app
+    ports:
+      - "8765:8765"
+    command: python3 server.py
