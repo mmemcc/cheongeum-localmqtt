@@ -1,0 +1,5 @@
+{
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": false,
+    "idf.pythonInstallPath": "/usr/bin/python3"
+  }
