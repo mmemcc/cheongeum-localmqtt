@@ -1,19 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>ESP32 Accel Data Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/uplot@1.6.21/dist/uPlot.iife.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/uplot@1.6.21/dist/uPlot.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+
 </head>
+
 <body>
-  <h1>ESP32 Acceleration Data</h1>
-  <div id="chart"></div>
+  <div class="container">
+    <h1>DASHBOARD</h1>
+    <button id="hold-btn">Hold</button>
 
-  <!-- uPlot -->
-  <link rel="stylesheet" href="https://unpkg.com/uplot/dist/uPlot.min.css" />
-  <script src="https://unpkg.com/uplot/dist/uPlot.iife.min.js"></script>
+    <!-- 진동센서 카드-->
+    <div class="section accel-section">
+      <h2>Acceleration Sensor (m/s²)</h2>
+      <div class="accel-wrapper">
+        <div id="accel-chart"></div>
+        <div class="accel-table-container">
+          <table class="accel-table">
+            <thead>
+              <tr>
+                <th>elased_us</th>
+                <th>X</th>
+                <th>Y</th>
+                <th>Z</th>
+                <th>time_int</th>
+              </tr>
+            </thead>
+            <tbody id="accel-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <!-- Dashboard Script -->
+
+    <!-- 환경 카드 -->
+    <div class="section">
+      <h2>Environment Sensors</h2>
+
+      <div class="env-container">
+        <div class="chart-container">
+          <h3 class="chart-title">Temperature (°C)</h3>
+          <div id="temp-chart"></div>
+        </div>
+
+        <div>
+          <h3 class="relay-title">Relay Status</h3>
+          <div id="relay-grid" class="relay-grid">
+            <div id="relay1-card" class="relay-card">
+              <h4>Comp</h4>
+              <p><span class="relay-connection">-</span></p>
+              <p><span class="relay-state">-</span></p>
+              <p><span class="relay-time">-</span></p>
+            </div>
+            <div id="relay2-card" class="relay-card">
+              <h4>Fan</h4>
+              <p><span class="relay-connection">-</span></p>
+              <p><span class="relay-state">-</span></p>
+              <p><span class="relay-time">-</span></p>
+            </div>
+            <div id="relay3-card" class="relay-card">
+              <h4>Def</h4>
+              <p><span class="relay-connection">-</span></p>
+              <p><span class="relay-state">-</span></p>
+              <p><span class="relay-time">-</span></p>
+            </div>
+            <div id="relay4-card" class="relay-card">
+              <h4>Aux/Light</h4>
+              <p><span class="relay-connection">-</span></p>
+              <p><span class="relay-state">-</span></p>
+              <p><span class="relay-time">-</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 로그 테이블 -->
+    <div class="section">
+      <h2>머를 너을까</h2>
+      <table class="log-table" id="log-table">
+        <thead>
+          <tr>
+            <th>타입</th>
+            <th>시간</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody id="log-body">
+          <!-- JS가 로그 추가 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
+
 </html>

@@ -10,11 +10,12 @@ mongo = MongoClient("mongodb://mongo:27017/")
 db = mongo["esp32_db"]
 accel_collection = db["accel_data"]
 env_collection = db["env_data"]
+relay_collection = db["relay_data"]
 
 # MQTT 브로커 설정
 MQTT_BROKER = "mosquitto"
 MQTT_PORT = 1883
-TOPICS = [("esp32/accel", 0), ("esp32/env", 0)]
+TOPICS = [("esp32/accel", 0), ("esp32/env", 0), ("esp32/relay", 0)]
                 
 # MQTT 콜백 - 연결 성공
 def on_connect(client, userdata, flags, rc):
@@ -47,6 +48,11 @@ def on_message(client, userdata, msg):
             payload["timestamp"] = datetime.utcnow().isoformat()
             env_collection.insert_one(payload)
             print("→ env_data 컬렉션에 저장 완료")
+            
+        elif msg.topic == "esp32/relay":
+            payload["timestamp"] = datetime.utcnow().isoformat()
+            relay_collection.insert_one(payload)
+            print("→ relay_data 컬렉션에 저장 완료")
 
     except Exception as e:
         print("에러:", e)
