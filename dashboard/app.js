@@ -1,7 +1,10 @@
-const WS_URL = "ws://localhost:8765";
+// const WS_URL = "ws://localhost:8765";
+// const socket = new WebSocket(WS_URL);
+
+const WS_URL = `ws://${window.location.hostname}:8765`;
 const socket = new WebSocket(WS_URL);
 
-const MAX_ACCEL_POINTS = 200;
+const MAX_ACCEL_POINTS = 1600;
 let timeSortedAccelBuffer = [];
 let accelQueue = [];
 let isHolding = false;
@@ -84,7 +87,7 @@ const accplot = new uPlot({
 const tempChart = new uPlot({
   // title: "Temperature (°C)",
   width: 600,
-  height: 300,
+  height: 320,
   scales: {
     x: { time: false},
     y: { min: 0, max: 100 }
@@ -112,6 +115,84 @@ const tempChart = new uPlot({
   ]
 }, [[], [], [], [], [], [], []], document.getElementById("temp-chart"));
 
+const currentChart = new uPlot({
+  width: 600,
+  height: 300,
+  scales: {
+    x: { time: false },
+    y: { min: 0, max: 100 }
+  },
+  axes: [
+    {
+      label: "시간",
+      values: (u, ticks) => ticks.map(t => {
+        const totalSec = Math.floor(t / 1000);
+        const minutes = Math.floor(totalSec / 60) % 60;
+        const seconds = totalSec % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      })
+    },
+    {}
+  ],
+  series: [
+    {},
+    { label: "압축기", stroke: "red", width: 1.5 },
+    { label: "팬", stroke: "orange", width: 1.5 },
+    { label: "제상히터", stroke: "brown", width: 1.5 }
+  ]
+}, [[], [], [], []], document.getElementById("current-chart"));
+
+const humiChart = new uPlot({
+  width: 400,
+  height: 130,
+  scales: {
+    x: { time: false },
+    y: { min: 0, max: 100 }
+  },
+  axes: [
+    {
+      label: "시간",
+      values: (u, ticks) => ticks.map(t => {
+        const totalSec = Math.floor(t / 1000);
+        const minutes = Math.floor(totalSec / 60) % 60;
+        const seconds = totalSec % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      })
+    },
+    {}
+  ],
+  series: [
+    {},
+    { label: "습도", stroke: "blue", width: 1.5 }
+  ]
+}, [[], []], document.getElementById("humi-chart"));
+
+const in_tempChart = new uPlot({
+  width: 400,
+  height: 130,
+  scales: {
+    x: { time: false },
+    y: { min: 0, max: 100 }
+  },
+  axes: [
+    {
+      label: "시간",
+      values: (u, ticks) => ticks.map(t => {
+        const totalSec = Math.floor(t / 1000);
+        const minutes = Math.floor(totalSec / 60) % 60;
+        const seconds = totalSec % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      })
+    },
+    {}
+  ],
+  series: [
+    {},
+    { label: "온도", stroke: "red", width: 1.5 }
+  ]
+}, [[], []], document.getElementById("in-temp-chart"));
+
+
 function updateAccelPlot(newData) {
   if (timeSortedAccelBuffer.length >= MAX_ACCEL_POINTS) {
     timeSortedAccelBuffer.shift();
@@ -125,7 +206,7 @@ function updateAccelPlot(newData) {
   // const yX = timeSortedAccelBuffer.map(d => d.x);
   // const yY = timeSortedAccelBuffer.map(d => d.y);
   // const yZ = timeSortedAccelBuffer.map(d => d.z);
-  const yX = timeSortedAccelBuffer.map(d => d.x/ 16384.0 * 9.80665);
+  const yX = timeSortedAccelBuffer.map(d => (d.x-16384.0)/ 16384.0 * 9.80665);
   const yY = timeSortedAccelBuffer.map(d => d.y/ 16384.0 * 9.80665);
   const yZ = timeSortedAccelBuffer.map(d => d.z/ 16384.0 * 9.80665);
 
@@ -142,7 +223,7 @@ function updateAccelTable() {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${d.us}</td>
-      <td>${(d.x/ 16384.0 * 9.80665).toFixed(3)}</td>
+      <td>${((d.x-16384.0)/ 16384.0 * 9.80665).toFixed(3)}</td>
       <td>${(d.y/ 16384.0 * 9.80665).toFixed(3)}</td>
       <td>${(d.z/ 16384.0 * 9.80665).toFixed(3)}</td>
       <td>${deltaUs}</td>
@@ -172,16 +253,21 @@ socket.onmessage = (event) => {
     accelQueue.push(...accelChunk);
   }
 
-  if (data.temp && data.temp.env_data) {
-    const temp = data.temp.env_data;
+  if (data.env && data.env.temp_data) {
+    const temp_data = data.env.temp_data;
+    const currrent_data = data.env.current_data;
+    console.log(data.env.current_data);
+    console.log(currrent_data);
     const currentTime = Date.now();
 
-    const temp1 = temp.temp1;
-    const temp2 = temp.temp2;
-    const temp3 = temp.temp3;
-    const temp4 = temp.temp4;
-    const temp5 = temp.temp5;
-    const temp6 = temp.temp6;
+    const temp1 = temp_data.temp1;
+    const temp2 = temp_data.temp2;
+    const temp3 = temp_data.temp3;
+    const temp4 = temp_data.temp4;
+    const temp5 = temp_data.temp5;
+    const temp6 = temp_data.temp6;
+    const current1 = currrent_data.current1;
+    const current2 = currrent_data.current2;
 
     if (isHolding) return; // Hold 시 업데이트 중지
 
@@ -195,11 +281,26 @@ socket.onmessage = (event) => {
       [...tempChart.data[6], temp6]
     ]);
 
-    if (tempChart.data[0].length > 20) {
+    if (tempChart.data[0].length > 300) {
       for (let i = 0; i < 7; i++) {
         tempChart.data[i].shift();
       }
     }
+
+    currentChart.setData([
+      [...currentChart.data[0], currentTime],
+      [...currentChart.data[1], current1],
+      [...currentChart.data[2], current2],
+      [...currentChart.data[3], 0]
+    ]);
+
+    if (currentChart.data[0].length > 300) {
+      for (let i = 0; i < 4; i++) {
+        currentChart.data[i].shift();
+      }
+    }
+
+    
   }
 
   // 🔄 릴레이 데이터 파싱 처리

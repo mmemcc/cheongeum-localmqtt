@@ -6,7 +6,7 @@ from pymongo import MongoClient
 mongo = MongoClient("mongodb://mongo:27017/")
 db = mongo["esp32_db"]
 accel_collection = db["accel_data"]
-temp_collection = db["env_data"]
+env_collection = db["env_data"]
 relay_collection = db["relay_data"]
 
 
@@ -17,35 +17,32 @@ async def send_data(websocket):
     print("클라이언트 연결됨")
     try:
         while True:
-            # 새로 들어온 accel document 찾기
-            query = {}
-            if last_sent_id:
-                query["_id"] = {"$gt": last_sent_id}
-            
-            accel_doc = accel_collection.find_one(
-                query,
-                sort=[("_id", 1)]  # ObjectId 기준 오름차순 (시간 순서와 유사)
-            )
 
-            temp_doc = temp_collection.find_one(sort=[("timestamp", -1)])
+            data = {}
+            accel_doc = accel_collection.find_one(sort=[("_id", -1)])
+
+
+            env_doc = env_collection.find_one(sort=[("timestamp", -1)])
             
             relay_doc = relay_collection.find_one(sort=[("timestamp", -1)])
 
-            data = {}
+            
 
-            if accel_doc:
-                last_sent_id = accel_doc["_id"]  # 다음 루프부터 이 이후만 찾도록
-
+            if accel_doc and accel_doc["_id"] != last_sent_id:
+                last_sent_id = accel_doc["_id"]  # 중복 방지용 업데이트
                 data["accel"] = {
                     "timestamp": accel_doc["timestamp"],
-                    "accel_data": accel_doc["accel_data"]  # 1600개 통째로 보냄
+                    "accel_data": accel_doc["accel_data"]
                 }
 
-            if temp_doc:
-                data["temp"] = {
-                    "timestamp": temp_doc.get("timestamp"),
-                    "env_data": {
-                        k: v for k, v in temp_doc.items() if k.startswith("temp")
+            if env_doc:
+                data["env"] = {
+                    "timestamp": env_doc.get("timestamp"),
+                    "temp_data": {
+                        k: v for k, v in env_doc.items() if k.startswith("temp")
+                    },
+                    "current_data": {
+                        k: v for k, v in env_doc.items() if k.startswith("current")
                     }
                 }
             

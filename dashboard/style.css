@@ -27,6 +27,7 @@ h2 {
 }
 
 
+
 #hold-btn {
 
   background-color: #2f4257;
@@ -48,13 +49,7 @@ h2 {
   cursor: not-allowed;
 }
 
-.chart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: fit-content;         /* 또는 width: 100% / 고정값도 OK */
-  margin: 0 auto;             /* 중앙 정렬 */
-}
+
 
 .chart-title {
   margin-bottom: 0rem;
@@ -128,46 +123,29 @@ h2 {
   text-align: center;
 }
 
-.env-container {
+
+
+.relay-container {
   display: flex;
   justify-content: center;       /* 🔸 가운데 정렬 */
   gap: 2rem;                     /* 🔸 두 요소 간 간격 */
   align-items: flex-start;       /* 🔸 위 정렬 */
-  margin-top: 1rem;
+  margin-top: 2rem;
   max-width: 1080px;
+  margin-left: auto;             /* ✅ 좌우 중앙 정렬 */
+  margin-right: auto; 
 }
 
-.temp-cards {
+.relay-chart-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.temp-card {
-  flex: 1 1 calc(33.333% - 16px);
-  background: #fefefe;
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease;
-}
-
-.temp-card:hover {
-  transform: translateY(-4px);
-}
-
-.temp-card h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  color: #555;
-}
-
-.temp-card .value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #007bff;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
+  margin: 0 auto;             /* 중앙 정렬 */
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
 }
 
 #relay-cards {
@@ -228,26 +206,52 @@ h2 {
   background-color: #e0ffe0; /* 초록 계열 */
 }
 
-
-.log-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+.env-container {
+  display: flex;
+  justify-content: center;       /* 🔸 가운데 정렬 */
+  gap: 2rem;                     /* 🔸 두 요소 간 간격 */
+  align-items: flex-start;       /* 🔸 위 정렬 */
+  margin-top: 1rem;
+  max-width: 1080px;
+  margin-left: auto;             /* ✅ 좌우 중앙 정렬 */
+  margin-right: auto; 
 }
 
-.log-table th,
-.log-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
+.temp-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
+  margin: 0 auto;             /* 중앙 정렬 */
+  margin-top: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
 }
 
-.log-table th {
-  background-color: #f0f2f5;
-  color: #555;
-  text-align: left;
+.humi-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
+  margin: 0 auto;             /* 중앙 정렬 */
+  margin-top: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
 }
 
-.log-table tr:hover {
-  background-color: #f9f9f9;
+.in-temp-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
+  margin: 0 auto;             /* 중앙 정렬 */
+  margin-top: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
 }
