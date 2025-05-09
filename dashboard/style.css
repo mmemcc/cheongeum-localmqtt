@@ -136,17 +136,7 @@ h2 {
   margin-right: auto; 
 }
 
-.relay-chart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
-  margin: 0 auto;             /* 중앙 정렬 */
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background-color: #fbfaff;
-  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
-}
+
 
 #relay-cards {
   display: flex;
@@ -162,12 +152,41 @@ h2 {
   font-weight: bold;
 }
 
+/* 2x2 그리드 레이아웃 */
 .relay-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 1rem;
   margin-top: 1rem;
+}
+
+/* 가로 레이아웃 */
+/* .relay-grid {
+  display: flex;
+  flex-direction: row; 
+  gap: 1rem;     
+  margin-top: 1rem;
+} */
+
+.relay-card-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid #bbb2b2;
+  margin: 0;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  min-width: 150px;
+  gap: 1rem;
+
+  background-color: #fbfaff;
+  font-size: 15px;
+  min-height: 150px;
+
+  line-height: 0.3;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .relay-card {
@@ -195,6 +214,48 @@ h2 {
   color: #333;
 }
 
+.relay-control-case-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.relay-control-case-container-header {
+  grid-column: 1 / span 2; /* 위에 1개로 가로 2칸 모두 차지 */
+  grid-row: 1;
+}
+
+.relay-control-case {
+  grid-row: 2;
+  cursor: pointer;
+  display: inline-flex;
+  position: relative;
+  /* flex-direction: column;  */
+  justify-content: center; 
+  transition: box-shadow 0.2s, background 0.2s;
+  border: 2px solid transparent;
+  padding: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: #cccfd4;
+  border-radius: 3px;
+}
+
+.relay-control-case:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: #b3cfff;
+  border-radius: 3px;
+}
+.relay-control-case.selected {
+  border: 2px solid #3b6cff;
+  background: #e3eeff;
+  border-radius: 3px;
+}
+
+
+
 .relay-disconnected {
   background-color: #e0e0e0; /* 회색 */
   color: #666;
@@ -204,6 +265,148 @@ h2 {
 }
 .relay-off {
   background-color: #e0ffe0; /* 초록 계열 */
+}
+
+.temp-setting-container {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;  /* 가로 가운데 정렬! */
+  gap: 3rem;                /* 두 블록 사이 간격 (선택) */
+  width: auto;
+  margin: 0 auto;
+  white-space: nowrap; 
+}
+
+.temp-setting-view-container {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  width: auto;
+  /* margin: 0 auto; */
+  white-space: nowrap; 
+}
+
+.temp-setting-view-container h4 {
+  display: flex;
+  margin: 1rem 0.5rem;
+  align-items: center;
+}
+
+.temp-setter {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  width: auto;
+  justify-content: center;  /* 가로 가운데 정렬 */
+  white-space: nowrap; 
+}
+
+.control-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;         /* 또는 width: 100% / 고정값도 OK */
+  margin: 0 auto;             /* 중앙 정렬 */
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+  /* padding: 1rem; */
+
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
+}
+
+.control-container h3 {
+  margin-bottom: 0rem;
+}
+
+.mode-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 가로 2열 */
+  grid-auto-rows: auto;                  /* 행 높이 자동 */
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-text-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+
+
+.mode-card-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0rem 1rem;
+}
+.mode-card {
+  cursor: pointer;
+  display: inline-flex;
+  position: relative;
+  flex-direction: column; 
+  justify-content: center; 
+  transition: box-shadow 0.2s, background 0.2s;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 0rem 0.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: #cccfd4;
+  border-radius: 12px;
+}
+.mode-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: #b3cfff;
+  border-radius: 12px;
+}
+.mode-card.selected {
+  border: 2px solid #3b6cff;
+  background: #e3eeff;
+  border-radius: 12px;
+}
+
+.mode-card h4 {
+  margin: 0.3rem 0;
+}
+
+/* 툴팁 기본 숨김 */
+.mode-card::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: 0.5em;        /* 카드와 툴팁 사이 간격 */
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  white-space: pre-line;
+  font-size: 0.95em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+  /* min-width: 180px; */
+  width: max-content;   /* 글자 길이에 맞게 */
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* 마우스 올렸을 때 툴팁 표시 */
+.mode-card:hover::after {
+  opacity: 1;
 }
 
 .env-container {
@@ -228,6 +431,28 @@ h2 {
   border: 1px solid #ddd;
   background-color: #fbfaff;
   box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
+}
+
+.current-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;       
+  margin: 0 auto;  
+  margin-top: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #fbfaff;
+  box-shadow: 0 2px 8px rgba(82, 82, 82, 0.3);
+}
+
+.inside-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 1em;
 }
 
 .humi-chart-container {

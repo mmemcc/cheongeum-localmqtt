@@ -49,36 +49,115 @@
         <div>
           <h3 class="relay-title">Relay Status</h3>
           <div id="relay-grid" class="relay-grid">
-            <div id="relay1-card" class="relay-card">
-              <h4>Comp</h4>
-              <p><span class="relay-connection">-</span></p>
+            <div id="relay1-card-container" class="relay-card-container">
+              <div id="relay1-card" class="relay-card">
+                <h4>Comp</h4>
+                <p><span class="relay-connection">-</span></p>
+                <p><span class="relay-state">-</span></p>
+                <p><span class="relay-time">-</span></p>
+              </div>
+              <div class="relay-control-case-container">
+                <div class="relay-control-case-container-header">
+                  <h4>현재모드</h4>
+                  <p id="relay1-current-mode-text"> - </p>
+                </div>
+                <div id="relay1-auto-control-case" class="relay-control-case">자동</div>
+                <div id="relay1-manual-control-case" class="relay-control-case">수동</div>
+              </div>
+            </div>
+            <div id="relay2-card-container" class="relay-card-container">
+              <div id="relay2-card" class="relay-card">
+                <h4>Fan</h4>
+                <p><span class="relay-connection">-</span></p>
               <p><span class="relay-state">-</span></p>
               <p><span class="relay-time">-</span></p>
+              </div>
+              <div class="relay-control-case-container">
+                <div class="relay-control-case-container-header">
+                  <h4>현재모드</h4>
+                  <p id="relay2-current-mode-text"> - </p>
+                </div>
+                <div id="relay2-auto-control-case" class="relay-control-case">자동</div>
+                <div id="relay2-manual-control-case" class="relay-control-case">수동</div>
+              </div>
             </div>
-            <div id="relay2-card" class="relay-card">
-              <h4>Fan</h4>
-              <p><span class="relay-connection">-</span></p>
+            <div id="relay3-card-container" class="relay-card-container">
+              <div id="relay3-card" class="relay-card">
+                <h4>Def</h4>
+                <p><span class="relay-connection">-</span></p>
               <p><span class="relay-state">-</span></p>
-              <p><span class="relay-time">-</span></p>
+                <p><span class="relay-time">-</span></p>
+              </div>
+              <div class="relay-control-case-container">
+                <div class="relay-control-case-container-header">
+                  <h4>현재모드</h4>
+                  <p id="relay3-current-mode-text"> - </p>
+                </div>
+                <div id="relay3-auto-control-case" class="relay-control-case">자동</div>
+                <div id="relay3-manual-control-case" class="relay-control-case">수동</div>
+              </div>
             </div>
-            <div id="relay3-card" class="relay-card">
-              <h4>Def</h4>
-              <p><span class="relay-connection">-</span></p>
-              <p><span class="relay-state">-</span></p>
-              <p><span class="relay-time">-</span></p>
-            </div>
-            <div id="relay4-card" class="relay-card">
+            <div id="relay4-card-container" class="relay-card-container">
+              <div id="relay4-card" class="relay-card">
               <h4>Aux/Light</h4>
               <p><span class="relay-connection">-</span></p>
-              <p><span class="relay-state">-</span></p>
-              <p><span class="relay-time">-</span></p>
+                <p><span class="relay-state">-</span></p>
+                <p><span class="relay-time">-</span></p>
+              </div>
+              <div class="relay-control-case-container">
+                <div class="relay-control-case-container-header">
+                  <h4>현재모드</h4>
+                  <p id="relay4-current-mode-text"> - </p>
+                </div>
+                <div id="relay4-auto-control-case" class="relay-control-case">자동</div>
+                <div id="relay4-manual-control-case" class="relay-control-case">수동</div>
+              </div>
+            </div>
+          </div>
+          <div class="control-container">
+            <h3 class="control-title">Control</h3>
+
+            <!-- <div class="mode-container">
+              <div class="mode-text-container">
+                <h4>현재 모드: </h4>
+                <p id="current-mode-text"></p>
+              </div>
+              <div class="mode-card-container">
+                <div id="manual-mode-card" class="mode-card" data-tooltip="릴레이 on/off 직접 제어">
+                  <h4>수동제어모드</h4>
+                </div>
+                <div id="auto-mode-card" class="mode-card" data-tooltip="온도 설정 후 자동 제어">
+                  <h4>자동제어모드</h4>
+                </div>
+              </div>
+            </div> -->
+            <div class="temp-setting-container">
+              <div class="temp-setting-view-container">
+                <h4 class="current-temp">현재 온도: </h4>
+                <p><span id="current-temp-value"> - </span></p>
+                <p><span id="current-temp-unit">°C</span></p>
+                <h4 class="setting-temp">설정 온도: </h4>
+                <p><span id="setting-temp-value"> - </span></p>
+                <p><span id="setting-temp-unit">°C</span></p>
+              </div>
+
+              <div class="temp-setter">
+                <label for="target-temp">목표 온도:</label>
+                <input type="number" id="target-temp" min="-50" max="100" step="0.1">
+                <button id="set-temp-btn">설정</button>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="relay-chart-container">
-          <h3 class="chart-title">Loads Current (A)</h3>
-          <div id="current-chart"></div>
+        <div class="inside-container">
+          <div class="in-temp-chart-container">
+            <h3 class="chart-title">Temperature (°C)</h3>
+            <div id="in-temp-chart"></div>
+          </div>
+          <div class="humi-chart-container">
+            <h3 class="chart-title">Humidity (%)</h3>
+            <div id="humi-chart"></div>
+          </div>
         </div>
       </div>
 
@@ -87,15 +166,10 @@
           <h3 class="chart-title">Temperature (°C)</h3>
           <div id="temp-chart"></div>
         </div>
-        <div class="inside-container">
-          <div class="humi-chart-container">
-            <h3 class="chart-title">Humidity (%)</h3>
-            <div id="humi-chart"></div>
-          </div>
-          <div class="in-temp-chart-container">
-            <h3 class="chart-title">Temperature (°C)</h3>
-            <div id="in-temp-chart"></div>
-          </div>
+        <div class="current-chart-container">
+          <h3 class="chart-title">Current (A)</h3>
+          <div id="current-chart"></div>
+        </div>
       </div>
     </div>
   </div>

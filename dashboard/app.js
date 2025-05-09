@@ -9,24 +9,94 @@ let timeSortedAccelBuffer = [];
 let accelQueue = [];
 let isHolding = false;
 
+let targetTemp = null;
+
 const holdButton = document.getElementById("hold-btn");
+
 
 // 릴레이 상태 기록용
 const relayStatusMap = {
-  relay1: { connection: 0, state: 0, lastChangeUs: null },
-  relay2: { connection: 0, state: 0, lastChangeUs: null },
-  relay3: { connection: 0, state: 0, lastChangeUs: null },
-  relay4: { connection: 0, state: 0, lastChangeUs: null },
+  relay1: { connection: 0, state: 0, control_case: 0, lastChangeUs: null },
+  relay2: { connection: 0, state: 0, control_case: 0, lastChangeUs: null },
+  relay3: { connection: 0, state: 0, control_case: 0, lastChangeUs: null },
+  relay4: { connection: 0, state: 0, control_case: 0, lastChangeUs: null },
 };
+
+
+
+// // 모드 카드 클릭 시 서버로 모드 전송 및 UI 업데이트
+// document.querySelectorAll('.mode-card').forEach(card => {
+//   card.addEventListener('click', function() {
+  
+//     // 모드명 추출 (id로 구분)
+//     let mode, modeText;
+//     if (this.id === "manual-mode-card") {
+//       mode = "manual";
+//       modeText = "수동제어모드";
+//       selectedMode = "manual";
+//     } else if (this.id === "auto-mode-card") {
+//       mode = "auto";
+//       modeText = "자동제어모드";
+//       selectedMode = "auto";
+//       if (targetTemp === null) {
+//         alert("목표 온도를 먼저 입력해주세요.");
+//         return;
+//       }
+//     }
+
+//     // 선택 효과
+//     document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+//     this.classList.add('selected');
+
+//     // 현재 모드 텍스트 표시
+//     document.getElementById("current-mode-text").textContent = modeText;
+
+//     // 서버로 모드 전송
+//     const msg = {
+//       type: "mode_select",
+//       mode: mode
+//     };
+//     socket.send(JSON.stringify(msg));
+//     // console.log("모드 전송:", msg);
+//   });
+// });
+
+
+
+document.getElementById('set-temp-btn').addEventListener('click', function() {
+  const tempInput = document.getElementById('target-temp');
+  const tempValue = tempInput.value;
+
+  if (tempValue === "") {
+    alert("목표 온도를 입력하세요.");
+    tempInput.focus();
+    return;
+  }
+
+  document.getElementById('setting-temp-value').textContent = tempValue;
+  targetTemp = parseFloat(tempValue);
+  // 서버로 목표 온도 전송
+  const msg = {
+    type: "set_target_temp",
+    target_temp: parseFloat(tempValue)
+  };
+  socket.send(JSON.stringify(msg));
+
+});
 
 
 function updateRelayCards(currentUs) {
   Object.keys(relayStatusMap).forEach((key) => {
     const card = document.getElementById(`${key}-card`);
-    const { connection, state, lastChangeUs } = relayStatusMap[key];
+    const currentModeText = document.getElementById(`${key}-current-mode-text`);
+    const { connection, state, control_case, lastChangeUs } = relayStatusMap[key];
 
     card.querySelector(".relay-connection").textContent = connection ? "Connected" : "Disconnected";
     card.querySelector(".relay-state").textContent = state ? "ON" : "OFF";
+
+    if (connection) {
+      currentModeText.textContent = control_case === 0 ? "수동제어모드" : "자동제어모드";
+    }
 
     if (lastChangeUs !== null && typeof currentUs === "number") {
       const deltaMs = currentUs - lastChangeUs;
@@ -51,11 +121,103 @@ function updateRelayCards(currentUs) {
   });
 }
 
+// 카드 클릭 이벤트 등록 (최초 1회만)
+["relay1", "relay2", "relay3", "relay4"].forEach(key => {
+  const card = document.getElementById(`${key}-card`);
+  const currentModeText = document.getElementById(`${key}-current-mode-text`);
+  const autoControlCase = document.getElementById(`${key}-auto-control-case`);
+  const manualControlCase = document.getElementById(`${key}-manual-control-case`);
+  card.style.cursor = "pointer";
+  let selectedMode = relayStatusMap[key].control_case;
+  document.getElementById('setting-temp-value').textContent = 0;
+
+  let connection = relayStatusMap[key].connection;
+  
+  card.addEventListener("click", () => {
+    connection = relayStatusMap[key].connection;
+    selectedMode = relayStatusMap[key].control_case;
+    if (connection === 0) {
+      alert("먼저 부하를 연결해주세요.");
+      return;
+    }
+    if (selectedMode === null) {
+      alert("먼저 모드를 선택해주세요.");
+      return;
+    }
+    if (selectedMode === 1) {
+      alert("자동 모드에서는 릴레이 제어를 할 수 없습니다.");
+      return;
+    }
+    
+    // 상태 토글
+    relayStatusMap[key].state = relayStatusMap[key].state ? 0 : 1;
+    relayStatusMap[key].lastChangeUs = Date.now();
+    // 서버로 명령 전송
+    const msg = {
+      type: "relay_control",
+      relay: key,
+      state: relayStatusMap[key].state
+    };
+    socket.send(JSON.stringify(msg));
+    // updateRelayCards(Date.now());
+  });
+
+  autoControlCase.addEventListener("click", () => {
+    
+    connection = relayStatusMap[key].connection;
+    if (connection === 0) {
+      alert("먼저 부하를 연결해주세요.");
+      return;
+    }
+    selectedMode = 1;
+    currentModeText.textContent = "자동제어모드";
+    relayStatusMap[key].control_case = 1;
+    // 선택 효과
+    manualControlCase.classList.remove('selected');
+    autoControlCase.classList.add('selected');
+    // 서버로 모드 전송
+    const msg = {
+      type: "mode_select",
+      relay: key,
+      mode: "auto"
+    };
+    socket.send(JSON.stringify(msg));
+  });
+
+  manualControlCase.addEventListener("click", () => {
+    
+    connection = relayStatusMap[key].connection;
+    if (connection === 0) {
+      alert("먼저 부하를 연결해주세요.");
+      return;
+    }
+    selectedMode = 0;
+    currentModeText.textContent = "수동제어모드";
+    relayStatusMap[key].control_case = 0;
+    // 선택 효과
+    autoControlCase.classList.remove('selected');
+    manualControlCase.classList.add('selected');
+    // 서버로 모드 전송
+    const msg = {
+      type: "mode_select",
+      relay: key,
+      mode: "manual"
+    };
+    socket.send(JSON.stringify(msg));
+  });
+});
+
 holdButton.addEventListener("click", () => {
   isHolding = !isHolding;
   holdButton.textContent = isHolding ? "Resume" : "Hold";
   console.log(isHolding ? "Data update paused" : "Data update resumed");
 });
+
+// // 1초마다(혹은 더 짧게) deltaMs 갱신
+// setInterval(() => {
+//   updateRelayCards(Date.now());
+// }, 1000); // 1초마다 갱신
+
 
 const accplot = new uPlot({
   // title: "Accelerometer (m/s²)",
@@ -87,7 +249,7 @@ const accplot = new uPlot({
 const tempChart = new uPlot({
   // title: "Temperature (°C)",
   width: 600,
-  height: 320,
+  height: 300,
   scales: {
     x: { time: false},
     y: { min: 0, max: 100 }
@@ -116,8 +278,8 @@ const tempChart = new uPlot({
 }, [[], [], [], [], [], [], []], document.getElementById("temp-chart"));
 
 const currentChart = new uPlot({
-  width: 600,
-  height: 300,
+  width: 400,
+  height: 320,
   scales: {
     x: { time: false },
     y: { min: 0, max: 100 }
@@ -136,15 +298,13 @@ const currentChart = new uPlot({
   ],
   series: [
     {},
-    { label: "압축기", stroke: "red", width: 1.5 },
-    { label: "팬", stroke: "orange", width: 1.5 },
-    { label: "제상히터", stroke: "brown", width: 1.5 }
+    { label: "압축기", stroke: "red", width: 1.5 }
   ]
-}, [[], [], [], []], document.getElementById("current-chart"));
+}, [[], []], document.getElementById("current-chart"));
 
 const humiChart = new uPlot({
-  width: 400,
-  height: 130,
+  width: 380,
+  height: 160,
   scales: {
     x: { time: false },
     y: { min: 0, max: 100 }
@@ -163,13 +323,13 @@ const humiChart = new uPlot({
   ],
   series: [
     {},
-    { label: "습도", stroke: "blue", width: 1.5 }
+    { label: "내부습도", stroke: "blue", width: 1.5 }
   ]
 }, [[], []], document.getElementById("humi-chart"));
 
 const in_tempChart = new uPlot({
-  width: 400,
-  height: 130,
+  width: 380,
+  height: 160,
   scales: {
     x: { time: false },
     y: { min: 0, max: 100 }
@@ -188,10 +348,9 @@ const in_tempChart = new uPlot({
   ],
   series: [
     {},
-    { label: "온도", stroke: "red", width: 1.5 }
+    { label: "내부온도", stroke: "red", width: 1.5 }
   ]
 }, [[], []], document.getElementById("in-temp-chart"));
-
 
 function updateAccelPlot(newData) {
   if (timeSortedAccelBuffer.length >= MAX_ACCEL_POINTS) {
@@ -236,13 +395,29 @@ socket.onopen = () => {
   console.log("WebSocket connection established");
 };
 
-setInterval(() => {
+// setInterval(() => {
+//   if (!isHolding && accelQueue.length > 0) {
+//     for (let i = 0; i < 16; i++) {
+//       const next = accelQueue.shift();
+//       updateAccelPlot(next);
+//     }
+//     updateAccelTable();
+//   }
+// }, 10);
+
+function accelDrawLoop() {
   if (!isHolding && accelQueue.length > 0) {
-    const next = accelQueue.shift();
-    updateAccelPlot(next);
+    for (let i = 0; i < 10; i++) {
+      const next = accelQueue.shift();
+      if (next) updateAccelPlot(next);
+    }
     updateAccelTable();
   }
-}, 20);
+  requestAnimationFrame(accelDrawLoop);
+}
+
+accelDrawLoop();
+
 
 socket.onmessage = (event) => {
   const data = JSON.parse(event.data);
@@ -256,8 +431,9 @@ socket.onmessage = (event) => {
   if (data.env && data.env.temp_data) {
     const temp_data = data.env.temp_data;
     const currrent_data = data.env.current_data;
-    console.log(data.env.current_data);
-    console.log(currrent_data);
+    const inside_data = data.env.inside_data;
+    // console.log(data.env.current_data);
+    // console.log(currrent_data);
     const currentTime = Date.now();
 
     const temp1 = temp_data.temp1;
@@ -266,8 +442,9 @@ socket.onmessage = (event) => {
     const temp4 = temp_data.temp4;
     const temp5 = temp_data.temp5;
     const temp6 = temp_data.temp6;
-    const current1 = currrent_data.current1;
-    const current2 = currrent_data.current2;
+    const current = currrent_data.current;
+    const temp_in = inside_data.humi_temp1;
+    const humi = inside_data.humi_temp2;
 
     if (isHolding) return; // Hold 시 업데이트 중지
 
@@ -278,7 +455,7 @@ socket.onmessage = (event) => {
       [...tempChart.data[3], temp3],
       [...tempChart.data[4], temp4],
       [...tempChart.data[5], temp5],
-      [...tempChart.data[6], temp6]
+      [...tempChart.data[6], temp6],
     ]);
 
     if (tempChart.data[0].length > 300) {
@@ -289,18 +466,38 @@ socket.onmessage = (event) => {
 
     currentChart.setData([
       [...currentChart.data[0], currentTime],
-      [...currentChart.data[1], current1],
-      [...currentChart.data[2], current2],
-      [...currentChart.data[3], 0]
+      [...currentChart.data[1], current]
     ]);
 
     if (currentChart.data[0].length > 300) {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 2; i++) {
         currentChart.data[i].shift();
       }
     }
 
-    
+    in_tempChart.setData([
+      [...in_tempChart.data[0], currentTime],
+      [...in_tempChart.data[1], temp_in]
+    ]);
+
+    if (in_tempChart.data[0].length > 300) {
+      for (let i = 0; i < 2; i++) {
+        in_tempChart.data[i].shift();
+      }
+    }
+
+    document.getElementById('current-temp-value').textContent = temp_in;
+
+    humiChart.setData([
+      [...humiChart.data[0], currentTime],
+      [...humiChart.data[1], humi]
+    ]);
+
+    if (humiChart.data[0].length > 300) {
+      for (let i = 0; i < 2; i++) {
+        humiChart.data[i].shift();
+      }
+    }
   }
 
   // 🔄 릴레이 데이터 파싱 처리
@@ -312,19 +509,25 @@ socket.onmessage = (event) => {
       const value = relayRoot[key];
       if (!Array.isArray(value) || value.length < 2) return;
 
-      const [connection, state] = value;
+      const [connection, state, control_case] = value;
       const prev = relayStatusMap[key];
+
 
       if (prev.state !== state || prev.connection !== connection) {
         relayStatusMap[key] = {
           connection,
           state,
+          control_case,
           lastChangeUs: Date.now(),
         };
       }
+      // document.getElementById("current-mode-text").textContent = control_case === 0 ? "수동제어모드" : "자동제어모드";
+      // selectedMode = control_case === 0 ? "manual" : "auto";
     });
+
 
     updateRelayCards(Date.now());
   }
 
 };
+
