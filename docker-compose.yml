@@ -10,6 +10,8 @@ services:
       - ./mongo-data:/data/db
     #   - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     command: ["mongod", "--replSet", "rs0"]
+    networks:
+      - cheongeum-net
 
   mosquitto:
     image: eclipse-mosquitto:2
@@ -20,6 +22,8 @@ services:
     volumes:
       - ./mosquitto:/mosquitto
     user: "${UID}:${GID}"
+    networks:
+      - cheongeum-net
 
   subscriber:
     build: ./subscriber
@@ -30,6 +34,8 @@ services:
     volumes:
       - ./subscriber:/app
     command: python3 main.py
+    networks:
+      - cheongeum-net
   
   websocket:
     build: ./websocket-server
@@ -41,3 +47,9 @@ services:
     ports:
       - "8765:8765"
     command: python3 -u server.py
+    networks:
+      - cheongeum-net
+
+networks:
+  cheongeum-net:
+    
